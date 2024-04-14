@@ -57,10 +57,8 @@ class storage_service:
         exception_proxy.validate(stop_period, datetime)
         
         if start_period > stop_period:
-            temp = start_period
-            start_period = stop_period
-            stop_period = temp
             raise argument_exception("Некорректно переданы параметры!")
+        
         # Фильтруем      
         prototype = storage_prototype(  self.__data )  
         filter = prototype.filter_by_period( start_period, stop_period)
@@ -84,9 +82,6 @@ class storage_service:
         exception_proxy.validate(nomenclature, nomenclature_model)
         
         if start_period > stop_period:
-            temp = start_period
-            start_period = stop_period
-            stop_period = temp
             raise argument_exception("Некорректно переданы параметры!")
         
         # Фильтруем      
@@ -203,21 +198,3 @@ class storage_service:
         )
         
         return result
-    
-    def create_blocked_turns(self, stop_period: datetime):
-        """"
-        Рассчитать обороты с 1900-01-01 до заданной даты 'stop_period' и добавить в хранилище.
-    
-        Args:
-        stop_period (datetime): Дата окончания расчета оборотов.
-        """
-        start_period = datetime(1900, 1, 1)
-        try:
-            # Расчет оборотов за указанный период
-            turns = self.create_turns(start_period, stop_period)
-            # Добавление результатов в хранилище
-            storage_instance = storage()
-            storage_instance.add_turns(turns)
-            print("Обороты успешно рассчитаны и добавлены в хранилище.")
-        except Exception as e:
-            print(f"Произошла ошибка при расчете оборотов: {e}")
