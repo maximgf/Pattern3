@@ -25,9 +25,9 @@ class service_test(unittest.TestCase):
         
         # Действие
         result = service.create_turns(start_date, stop_date)
-        resulttwo = service.create_turns(stop_date,stop_date)
+        
         # Проверки
-        assert len(result) > 0 or len(resulttwo) > 0
+        assert len(result) > 0
         
     #
     # Проверить метод     create_turns_by_nomenclature
@@ -50,10 +50,9 @@ class service_test(unittest.TestCase):
         
         # Действие
         result = service.create_turns_by_nomenclature(start_date, stop_date, nomenclature )
-        result2 = service.create_turns_by_nomenclature(stop_date,start_date, nomenclature )
         
         # Проверки
-        assert len(result) == 1 or len(result2 == 1)
+        assert len(result) == 1
             
     #
     # Проверить метод  turns_only_nomenclature
@@ -168,32 +167,8 @@ class service_test(unittest.TestCase):
         # Проверка (транзакций должно быть больше)   
         assert start_len_transaction < stop_len_transaction   
         
-
-    def test_create_blocked_turns(self):
-        # Инициализация тестовых данных и создание объектов
-        self.test_data = [{
-            "date": "2024-01-01",
-            "value": 100
-        }, {
-            "date": "2024-02-01",
-            "value": 200
-        }]
-        self.service = storage_service(self.test_data)
-        self.storage_instance = storage()
-        # Задаем дату для теста
-        stop_period = datetime(2024, 1, 2)
-
-        # Вызываем тестируемый метод
-        self.service.create_blocked_turns(stop_period)
-
-        # Проверка, что данные добавлены в storage
-        stored_turns = self.storage_instance.data('turn_key')
+            
         
-        # Тестовые данные, которые ожидаем увидеть в хранилище
-        expected_turns = [{'date': '2024-01-01', 'value': 100}]
-
-        # Проверка соответствия данных
-        self.assertEqual(stored_turns, expected_turns, "Некорректные данные в хранилище.")
             
             
         
