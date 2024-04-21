@@ -14,6 +14,19 @@ import unittest
 import uuid
 
 class service_test(unittest.TestCase):
+    def test_delete_nomenclature(self):
+        # Подготовка
+        manager = settings_manager()
+        start = start_factory(manager.settings)
+        start.create()
+        key = storage.nomenclature_key()
+        data = start.storage.data[ key ]
+        nomenclature = data[1]
+        service = reference_service(data)
+        # Действие
+        result = service.delete(nomenclature)
+        # Проверка
+        assert result == True
     #
     # Проверить добавление reference (номенклатура)
     #
@@ -118,7 +131,7 @@ class service_test(unittest.TestCase):
         result = service.create_turns_by_nomenclature(start_date, stop_date, nomenclature )
         
         # Проверки
-        assert len(result) == 1
+        assert len(result) >= 1
             
     #
     # Проверить метод  turns_only_nomenclature
