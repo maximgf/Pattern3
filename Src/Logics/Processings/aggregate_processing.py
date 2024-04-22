@@ -40,6 +40,8 @@ class aggregate_processing(processing):
         # Группируем исходные данные 
         grouped_source_data = {}
         for transaction in source:
+            if not transaction.nomenclature or not transaction.storage or not transaction.unit:
+                continue
             key = f"{transaction.nomenclature.id}_{transaction.storage.id}_{transaction.unit.id}"
             if key not in grouped_source_data.keys():
                 grouped_source_data[key] = []
