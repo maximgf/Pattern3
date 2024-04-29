@@ -1,6 +1,8 @@
 import json
 import os
-
+from Src.Models.event_type import event_type
+from Src.Models.nomenclature_model import nomenclature_model
+from Src.Logics.storage_observer import storage_observer
 from Src.exceptions import operation_exception, exception_proxy
 from Src.Logics.convert_factory import convert_factory
 from Src.reference import reference
@@ -53,7 +55,7 @@ class storage():
                 
                 self.__data = {}
                 for key in storage.storage_keys(storage):
-                    if key in source.keys():
+                    if key in source.keys() and key != self.log_key():
                         source_data = source[key]
                         self.__data[key] = []
                         
@@ -61,7 +63,7 @@ class storage():
                             object = self.__mapping[key]
                             instance = object().load(item)
                             self.__data[key].append(instance)
-
+            self.__data[self.log_key()] = []
         except Exception as ex:
             raise operation_exception(f"Ошибка при чтении данных. Файл {self.__storage_file}\n{ex}")
         
@@ -99,7 +101,7 @@ class storage():
         exception_proxy.validate(turns, list)
         if len(turns) > 0:
             self.__data[ storage.blocked_turns_key() ] = turns
-            # self.save()
+            self.save()
             
             
     @staticmethod
@@ -176,6 +178,15 @@ class storage():
         return keys
     
 
+    @staticmethod
+    def log_key():
+        """
+            Список логов
+        Returns:
+            _type_: _description_
+        """
+        return "log_model"
+    
     def Ok( app):
         """"
             Сформировать данные для сервера

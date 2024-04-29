@@ -4,16 +4,17 @@ from Src.reference import reference
 from Src.Logics.storage_observer import storage_observer
 from Src.Models.event_type import event_type
 from Src.Logics.Services.post_processing_service import post_processing_service
-
+from Src.Logics.logger import logger
 #
 # Сервис для выполнения CRUD операций
 #
 class reference_service(service):
-
+    __logger: logger = None
     def __init__(self, data: list) -> None:
         super().__init__(data)
         storage_observer.observers.append(self)
         post_processing_service( self.data )
+        self.__logger = logger(logger.log_type_debug())
         
         
     def add(self, item: reference) -> bool:
@@ -26,6 +27,7 @@ class reference_service(service):
             return False
         
         self.data.append(item)
+        self.__logger.write(f"Add new item: (ID: {item.id}; NAME: {item.name})")
         return True
     
     def delete(self, item:reference) -> bool:
@@ -45,6 +47,7 @@ class reference_service(service):
 
 	# Удалить элемент
         self.data.remove(item)
+        self.__logger.write(f"Delete item: (ID: {item.id}; NAME: {item.name})")
         return True
 
     def change(self, item:reference) -> bool:
@@ -77,13 +80,13 @@ class reference_service(service):
         
         return found
     
-    def handle_event(self, handle_type: str):
+    def handle_event(self, handle_type: str,arg = None):
         """
             Обработать событие
         Args:
             handle_type (str): _description_
         """
-        super().handle_event(handle_type)
+        super().handle_event(handle_type,arg)
 
 
 
