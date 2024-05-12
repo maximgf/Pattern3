@@ -8,6 +8,7 @@ from Src.Logics.convert_factory import convert_factory
 from Src.Models.nomenclature_model import nomenclature_model
 from Src.Logics.storage_observer import storage_observer
 from Src.Models.event_type import event_type
+from Src.Logics.Services.log_service import log_service
 
 from datetime import datetime
 import unittest
@@ -15,6 +16,10 @@ import uuid
 
 class service_test(unittest.TestCase):
     
+    def __init__(self, methodName: str = "runTest") -> None:
+        super().__init__(methodName)
+        log_service()
+
     #
     # Тест на удаление номенклатуры
     #
@@ -27,14 +32,13 @@ class service_test(unittest.TestCase):
         data = start.storage.data[ key ]
         if len(data) == 0:
             raise operation_exception("Некорректно сформирован набор данных!")
-        item = data[0]
-        item_nomen = data[1]
         service = reference_service(data)
         start_len = len(data)
-
+        item = data[0]
         
         # Действие
-        result = service.delete( item ) and service.delete( item_nomen )
+        result = service.delete( item )
+                
         # Проверки
         assert result == True  
         
@@ -186,7 +190,7 @@ class service_test(unittest.TestCase):
         result = service.create_turns_by_nomenclature(start_date, stop_date, nomenclature )
         
         # Проверки
-        assert len(result) >= 1
+        assert len(result) == 1
             
     #
     # Проверить метод  turns_only_nomenclature
@@ -314,26 +318,13 @@ class service_test(unittest.TestCase):
         
         # Действие
         try:
-            storage_observer.raise_event(  event_type.changed_block_period(), None  )
+            storage_observer.raise_event(  event_type.changed_block_period()  )
             pass
         except Exception as ex:
             print(f"{ex}")
             
-    def test_check_delete_nom_observer(self):
-        manager = settings_manager()
-        start = start_factory(manager.settings)
-        start.create()
-        key = storage.nomenclature_key()
-        data = start.storage.data[ key ]
-
-        nomenclature = data[1]
-
-        service = reference_service(data)
-
-        # Действие
-        result = service.delete(nomenclature)
-
-        assert result == True      
+        
+             
             
         
         

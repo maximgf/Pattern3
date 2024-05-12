@@ -6,14 +6,13 @@ from Src.reference import reference
 from Src.Models.receipe_model import receipe_model
 from Src.Models.storage_row_model import storage_row_model
 from Src.Models.storage_model import storage_model
-from Src.Models.log_model import log_model
+
 # Системное
 from Src.settings import settings
 from Src.Storage.storage import storage
 from Src.exceptions import exception_proxy, operation_exception, argument_exception
-from Src.Logics.Services.post_processing_service import post_processing_service
-from Src.Logics.storage_observer import storage_observer
-from Src.Logics.logger import logger
+from Src.Logics.Services.log_service import log_service
+
 #
 # Класс для обработки данных. Начало работы приложения
 #
@@ -27,6 +26,8 @@ class start_factory:
         exception_proxy.validate(_options, settings)
         self.__oprions = _options
         self.__storage = _storage
+        log_service()
+
         
     
     def __save(self, key:str, items: list):
@@ -40,6 +41,7 @@ class start_factory:
         
         if self.__storage == None:
             self.__storage = storage()
+            self.__storage.clear()
             
         self.__storage.data[ key ] = items
         
@@ -53,17 +55,7 @@ class start_factory:
         return self.__storage
     
     # Статические методы
-    @staticmethod      
-    def create_logs() -> list:
-        """
-            Сформировать список логов
-        Returns:
-            _type_: _description_
-        """
-        items = []
-
-        items.append(log_model(logger.log_type_info(), "Первый запуск"))
-        return items 
+    
     @staticmethod
     def create_units() -> list:
         """
@@ -131,10 +123,9 @@ class start_factory:
             # Создаем объект - номенклатура
             item = nomenclature_model( name, group, units[unit_name])
             result.append(item)
-        for nomenclature in result:
-            post_processing_service(nomenclature, result)
+          
         return result
-    
+      
     @staticmethod      
     def create_groups() -> list:
         """
@@ -278,12 +269,7 @@ class start_factory:
                 # 5. Формируем типовые складские проводки
                 items = start_factory.create_storage_transactions( self.storage.data )
                 self.__save( storage.storage_transaction_key(), items)
-                
-                # 6. Формируем логи
-                items = start_factory.create_logs()
-                self.__save( storage.log_key(), items)
-
-                self.__oprions.is_first_start = False
+            
             except Exception as ex:
                 raise operation_exception(f"Ошибка при формировании шаблонных данных!\n{ex}")        
                     
@@ -293,9 +279,8 @@ class start_factory:
                 self.__storage.load()
             except Exception as ex:
                 raise operation_exception(f"Ошибка при формировании шаблонных данных!\n{ex}")     
-            nomenclatures = self.__storage.data[ self.__storage.nomenclature_key() ]
-            for nomenclature in nomenclatures:
-                post_processing_service(nomenclature, nomenclatures)         
+
+            
         
             
             
